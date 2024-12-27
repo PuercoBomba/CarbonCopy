@@ -1,10 +1,4 @@
 # CarbonCopy
-_________             ___.                   _________                       ____   ____  ____    _______   
-\_   ___ \_____ ______\_ |__   ____   ____   \_   ___ \  ____ ______ ___.__. \   \ /   / /_   |   \   _  \  
-/    \  \/\__  \\_  __ \ __ \ /  _ \ /    \  /    \  \/ /  _ \\____ <   |  |  \   Y   /   |   |   /  /_\  \ 
-\     \____/ __ \|  | \/ \_\ (  <_> )   |  \ \     \___(  <_> )  |_> >___  |   \     /    |   |   \  \_/   \
- \______  (____  /__|  |___  /\____/|___|  /  \______  /\____/|   __// ____|    \___/     |___| /\ \_____  /
-        \/     \/          \/            \/          \/       |__|   \/                         \/       \/ 
 
 Este programa fue creado con fines educativos y de investigación.
 Debe ser utilizado de manera ética y responsable, con el consentimiento explícito de todas las partes involucradas.
